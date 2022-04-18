@@ -1,8 +1,21 @@
+/*
+* This is the UserServiceadapter which implemts the UserService Interface ; this
+* uses the adpater pattern.
+*
+* */
+
+
+
+
 package com.pms.service;
 
 
+import com.mongodb.MongoException;
+import com.pms.model.Department;
 import com.pms.model.Role;
+import com.pms.model.SystemProperties;
 import com.pms.model.User;
+import com.pms.repository.DepartmentRepository;
 import com.pms.repository.RoleRepository;
 import com.pms.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +31,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 
 @Service @Slf4j @RequiredArgsConstructor
@@ -26,7 +40,9 @@ public class UserServiceAdapter implements UserService, UserDetailsService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final DepartmentRepository departmentRepository;
     private final PasswordEncoder passwordEncoder;
+
 
 
     @Autowired
@@ -59,9 +75,59 @@ public class UserServiceAdapter implements UserService, UserDetailsService {
 
     @Override
     public Role saveRole(Role role) {
-        log.info("Saving new role to the database");
-        role.setId((int) sequenceGeneratorService.generateSequence(role.SEQUENCE_NAME));
-        return roleRepository.save(role);
+        log.info("Trying to save new role to the database");
+
+        //Check if role name exists in the database.
+        Role cur = roleRepository.findByRolename(role.getRolename());
+
+        if(Objects.isNull(cur)){
+            /*
+            Inserts new role in the database.
+             */
+            role.setId((int) sequenceGeneratorService.generateSequence(role.SEQUENCE_NAME));
+            return roleRepository.save(role);
+        }
+
+        else if(!Objects.isNull(cur)){
+            /*
+            * Role name needs to be unique.
+            * */
+            throw new MongoException("Rolename is not unique.");
+        }
+        else {
+            /*
+            * Checks for any unexpected circumstances. A generic exception handler.
+            * */
+            throw  new MongoException("Unknown error, please check log.");
+        }
+    }
+
+    @Override
+    public Department saveDepartment(Department department) {
+        log.info("Trying to add new department in the database.");
+
+        Department cur = departmentRepository.findByDepartmentName(department.getDepartmentName());
+
+        if(Objects.isNull(cur)) {
+            department.setDepartmentID((int) sequenceGeneratorService.generateSequence(department.SEQUENCE_NAME));
+
+            if((int)department.getManagerID() == SystemProperties.DEFAULT_MANAGER_ID){
+                return departmentRepository.save(department);
+            }
+
+            else if (department.getManagerID() < 0){
+                throw  new MongoException("Operation violates rules of schema!");
+            }
+
+
+            return departmentRepository.save(department);
+        }
+        else if (!Objects.isNull(cur)){
+            throw new MongoException("Department name exists");
+        }
+        else{
+            throw  new MongoException("Unknown error please check log");
+        }
     }
 
     @Override
@@ -96,6 +162,26 @@ public class UserServiceAdapter implements UserService, UserDetailsService {
     public List<User> getUsers() {
         log.info("Fetching all users");
         return userRepository.findAll();
+    }
+
+    @Override
+    public List<User> getManagers(){
+        log.info("Fetching all users with role: Manager");
+
+        List<User> cache =  userRepository.findAll();
+        List<User> manager = new ArrayList<>();
+        for(User x : cache){
+            List<String> strRoles = new ArrayList<>();
+            for(Role r : x.getRoles()){
+                strRoles.add(r.getRolename());
+            }
+
+            if(strRoles.contains("ROLE_MANAGER")) {
+                x.setPassword("PROTECTED_INFORMATION");
+                manager.add(x);
+            }
+        }
+        return manager;
     }
 
 

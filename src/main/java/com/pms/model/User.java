@@ -1,11 +1,13 @@
 package com.pms.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @Document
 public class User {
@@ -16,6 +18,8 @@ public class User {
     private long id;
     private String name;
     private String username;
+
+    @JsonIgnore
     private String password;
     private String email;
 
@@ -76,4 +80,17 @@ public class User {
     public void setRoles(Collection<Role> roles) {
         this.roles = roles;
     }
+
+    /*
+     * Custom function to return all the roles in the form of string
+     * */
+
+    public List<String> convertToString(User user){
+        List<String> strRoles = new ArrayList<>();
+        for(Role r : user.getRoles()){
+            strRoles.add(r.getRolename());
+        }
+        return strRoles;
+    }
+
 }

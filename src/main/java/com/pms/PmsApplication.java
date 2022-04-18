@@ -35,7 +35,7 @@ public class PmsApplication {
 	PasswordEncoder passwordEncoder(){
 		return new BCryptPasswordEncoder();
 	}
-
+//
 //	@Bean
 //	CommandLineRunner run(UserService userService, UserRepository userRepository){
 //		return args ->{

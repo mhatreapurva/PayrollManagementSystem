@@ -5,6 +5,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pms.model.Department;
 import com.pms.model.Role;
 import com.pms.model.User;
 import com.pms.service.UserService;
@@ -36,14 +37,27 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class UserController {
     private final UserService userService;
 
+
+    @GetMapping("/managers")
+    public ResponseEntity<List<User>> getManagers(){
+        /*
+        Returns a list of all the people who have their role as "manager".
+         */
+
+        return  ResponseEntity.ok().body(userService.getManagers());
+    }
+
     @GetMapping("/users")
     public ResponseEntity<List<User>> getUsers(){
+        /*
+        Returns list of all the employees. Only admins can do this.
+         */
         return ResponseEntity.ok().body(userService.getUsers());
     }
 
     @PostMapping("/users/save")
     public ResponseEntity<User> saveUser(@RequestBody User user){
-        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/user/save").toUriString());
+        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/users/save").toUriString());
         return ResponseEntity.created(uri).body(userService.saveUser(user));
     }
 
@@ -53,12 +67,19 @@ public class UserController {
         return ResponseEntity.created(uri).body(userService.saveRole(role));
     }
 
-    @PostMapping("/role/addtouser")
+    @PostMapping("/role/add-to-user")
     public ResponseEntity<?> addRoleToUser(@RequestBody RoleToUserForm form){
         //URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/role/save").toUriString());
         userService.addRoleToUser(form.getEmail(),form.getRolename());
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/admin/add-department")
+    public ResponseEntity<?> addDepartment(@RequestBody Department department){
+        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/admin/add-department").toUriString());
+        return  ResponseEntity.created(uri).body(userService.saveDepartment(department));
+    }
+
 
     @GetMapping("/token/refresh")
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -100,6 +121,7 @@ public class UserController {
             throw new RuntimeException("Refresh token is missing");
         }
     }
+
 
 }
 

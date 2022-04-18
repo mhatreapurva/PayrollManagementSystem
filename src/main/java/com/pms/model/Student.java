@@ -73,4 +73,6 @@ public class Student {
     public void setDepartmentID(int departmentID) {
         this.DepartmentID = departmentID;
     }
+
+
 }
