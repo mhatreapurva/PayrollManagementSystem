@@ -47,7 +47,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         /*
         The system allows to login and refresh to all the users.
          */
-        http.authorizeRequests().antMatchers("/api/login/**","api/token/refresh/**").permitAll();
+        http.authorizeRequests().antMatchers("/api/login/**","/api/token/refresh").permitAll();
 
 
         /*
