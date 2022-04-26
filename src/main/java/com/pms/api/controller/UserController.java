@@ -87,7 +87,6 @@ public class UserController {
     @GetMapping("/token/refresh")
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
         userService.refreshTokenService(request,response);
-
     }
 
 

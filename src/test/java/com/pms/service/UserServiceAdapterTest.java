@@ -42,6 +42,9 @@ class UserServiceAdapterTest {
     @Test
     void canGetUsers() {
         /*
+        This is the result test pattern.
+         */
+        /*
         Given
          */
         List<User> users = List.of(

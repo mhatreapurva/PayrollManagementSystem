@@ -155,7 +155,6 @@ public class UserServiceAdapter implements UserService, UserDetailsService {
             System.out.println("No role found");
         }
         user.getRoles().add(role);
-        System.out.print("Hey there: ");
 
         for(Role x : user.getRoles()){
             System.out.println(x.getRolename());
