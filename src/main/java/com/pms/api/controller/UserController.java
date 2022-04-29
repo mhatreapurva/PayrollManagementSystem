@@ -46,7 +46,6 @@ public class UserController {
         /*
         Returns a list of all the people who have their role as "manager".
          */
-
         return  ResponseEntity.ok().body(userService.getManagers());
     }
 
