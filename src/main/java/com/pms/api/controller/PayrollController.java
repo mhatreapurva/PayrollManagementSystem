@@ -32,6 +32,9 @@ public class PayrollController {
         return ResponseEntity.created(uri).body(payrollService.addWeeklyData(payroll));
     }
 
+    @PostMapping("/analytics")
+    public ResponseEntity<?> employeeStatistics(@RequestBody)
+
 
 
 }
